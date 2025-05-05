@@ -1,17 +1,12 @@
 <template>
   <img alt="Vue logo" src="./assets/logoapp.png">
-  <InicioView />
+  <router-view />
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
-import InicioView from './views/Inicio.vue';
 
 export default {
   name: 'App',
-  components: {
-    InicioView
-  }
 }
 </script>
 
