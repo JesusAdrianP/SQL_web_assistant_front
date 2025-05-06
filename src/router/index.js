@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import InicioView from '../views/Inicio.vue'
 import ChatView from '../views/ChatView.vue'
 import DatabaseConnection from '../views/DatabaseConnection.vue'
+import SelectModel from '../views/SelectModel.vue'
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     path: '/db_connection',
     name: 'DatabaseConnection',
     component: DatabaseConnection
+  },
+  {
+    path: '/select_model',
+    name: 'SelectModel',
+    component: SelectModel
   }
 ]
 

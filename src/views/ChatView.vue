@@ -105,13 +105,13 @@ export default {
 }
 
 .messages .user p {
-    background-color: #d1e7dd;
-    color: #0f5132;
+    background-color: #6A1B9A;
+    color: #fff;
 }
 
 .messages .bot p {
-    background-color: #f8d7da;
-    color: #842029;
+    background-color: #fae5e6;
+    color: #6A1B9A;
 }
 
 .input-container {
@@ -131,7 +131,7 @@ input[type="text"] {
 
 button {
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #6A1B9A;
     color: #fff;
     border: none;
     border-radius: 4px;

@@ -1,11 +1,22 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-const { url } = require('../config/config.js')
-const axios = require('axios')
-axios.defaults.baseURL = url
+import {createStore} from 'vuex'
 
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
-    
+const store = createStore({
+    state:{
+        SelectModel: null,
+    },
+    mutations:{
+        setSelectModel(state, model) {
+            state.SelectModel = model
+        },
+    },
+    actions: {
+        updateSelectModel({ commit }, model) {
+            commit('setSelectModel', model)
+        }
+    },
+    getters: {
+        getSelectedModel: (state) => state.SelectModel,
+    }
 })
+
+export default store;

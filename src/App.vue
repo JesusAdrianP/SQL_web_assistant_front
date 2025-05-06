@@ -16,13 +16,17 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 100%;
 }
 body {
   margin: 0px;
   font-family: 'Times New Roman', Times, serif;
+  height: 100%;
+}
+html {
+  height: 100%;
 }
 img {
   width: 10%;
-  height: 10%;
 }
 </style>

@@ -1,26 +1,32 @@
-<template>
-    <div class="database-connection">
-        <h1>Conecta tu base de datos</h1>
-        <form @submit.prevent="submitForm">
-            <div class="form-group">
-                <label for="db_name">Nombre de la base de datos:</label>
-                <input type="text" id="db_name" v-model="form.db_name" required />
-            </div>
-            <div class="form-group">
-                <label for="db_user">Usuario de la base de datos:</label>
-                <input type="text" id="db_user" v-model="form.db_user" required />
-            </div>
-            <div class="form-group">
-                <label for="db_password">Contraseña de la base de datos:</label>
-                <input type="password" id="db_password" v-model="form.db_password" required />
-            </div>
-            <div class="form-group">
-                <label for="db_host">Host de la base de datos:</label>
-                <input type="text" id="db_host" v-model="form.db_host" required />
-            </div>
-            <button type="submit">Conectar</button>
-        </form>
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+<template >
+    <!-- Logo -->
+    <div class="logo-title rounded-xl p-6 mb-6" style="background-color: #573672;">
+        <img src="@/assets/logoapp.png" alt="SQL Assistant Logo" class="logo-app w-40 mx-auto" />
+    </div>
+    <div class="form-container">
+        <div class="database-connection">
+            <h1>Conecta tu base de datos</h1>
+            <form @submit.prevent="submitForm">
+                <div class="form-group">
+                    <label for="db_name">Nombre de la base de datos:</label>
+                    <input type="text" id="db_name" v-model="form.db_name" required />
+                </div>
+                <div class="form-group">
+                    <label for="db_user">Usuario de la base de datos:</label>
+                    <input type="text" id="db_user" v-model="form.db_user" required />
+                </div>
+                <div class="form-group">
+                    <label for="db_password">Contraseña de la base de datos:</label>
+                    <input type="password" id="db_password" v-model="form.db_password" required />
+                </div>
+                <div class="form-group">
+                    <label for="db_host">Host de la base de datos:</label>
+                    <input type="text" id="db_host" v-model="form.db_host" required />
+                </div>
+                <button type="submit">Conectar</button>
+            </form>
+            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        </div>
     </div>
 </template>
 
@@ -43,7 +49,7 @@ export default {
     },
     methods: {
         goToView () {
-            this.$router.push({ name: 'ChatView' })
+            this.$router.push({ name: 'SelectModel' })
         },
         async submitForm() {
             try {
@@ -102,5 +108,10 @@ button:hover {
     color: red;
     margin-top: 15px;
     font-weight: bold;
+}
+
+.form-container {
+    background-color: #573672;
+    height: 100%;
 }
 </style>

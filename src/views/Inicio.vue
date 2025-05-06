@@ -121,6 +121,14 @@ export default {
     padding: 15px;
     border-radius: 10px;
     border: none;
+    cursor: pointer;
+}
+
+.purple-button:hover {
+  background-color: #7d42a2; 
+  border-color: #7d42a2; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  transform: translateY(-3px); 
 }
 
 .app-features {
