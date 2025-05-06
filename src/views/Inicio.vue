@@ -1,63 +1,52 @@
 <template>
-    <div class="inicio">
-        <header class="flex justify-between items-center p-6 bg-purple-800 text-white">
-            <h1 class="text-2xl font-bold">SQL Assistant</h1>
-            <nav>
-                <ul class="flex gap-6 text-sm">
-                    <li><a href="#features" class="hover:underline">Funciones</a></li>
-                    <li><a href="#how-it-works" class="hover:underline">Cómo funciona</a></li>
-                    <li><a href="#contact" class="hover:underline">Contacto</a></li>
-                </ul>
-            </nav>
-        </header>
-        <main>
-            <p>{{ mensaje }}</p>
-        </main>
-        <section class="bg-purple-700 text-white text-center py-20 px-6">
-            <h2 class="text-4xl font-bold mb-4">Tu asistente inteligente para bases de datos SQL</h2>
-            <p class="text-lg mb-8">Consulta, genera y entiende tus datos con lenguaje natural.</p>
-            <a href="#start" class="bg-white text-purple-700 font-semibold px-6 py-3 rounded shadow-lg hover:bg-gray-100">
+    <div class="min-h-screen bg-blue-50 flex flex-col items-center px-4 py-8" >
+      <!-- Logo -->
+      <div class="logo-title rounded-xl p-6 mb-6">
+        <img src="@/assets/logoapp.png" alt="SQL Assistant Logo" class="logo-app w-40 mx-auto" />
+        <h1 class="text-white text-2xl font-bold text-center mt-4" style="margin-bottom: 0px;">SQL</h1>
+        <h1 class="text-white text-2xl font-bold text-center mt-4" style="margin-top: -5px; margin-bottom: 0px;">Assistant</h1>
+      </div>
+  
+      <!-- Card -->
+      <div class="bg-white max-w-xl w-full rounded-2xl shadow-lg p-8 text-center space-y-6">
+        <h2 class="purple-text text-xl font-bold">SQL Assistant</h2>
+        <p class="purple-text text-lg font-semibold">
+          Tu asistente inteligente para bases de datos SQL
+        </p>
+        <button class="purple-button">
+            <span>
                 Empezar ahora
-            </a>
-        </section>
-        <section id="features" class="py-20 px-6 bg-gray-100 text-center">
-            <h3 class="text-3xl font-semibold mb-10">Características</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <div>
-                    <h4 class="text-xl font-bold mb-2">Consulta por voz o texto</h4>
-                    <p>Habla o escribe lo que necesitas saber, nosotros traducimos a SQL.</p>
-                </div>
-                <div>
-                    <h4 class="text-xl font-bold mb-2">Soporte multibase</h4>
-                    <p>Compatible con MySQL, PostgreSQL, SQLite y más.</p>
-                </div>
-                <div>
-                    <h4 class="text-xl font-bold mb-2">Interfaz intuitiva</h4>
-                    <p>Interacción sencilla, ideal para principiantes y expertos.</p>
-                </div>
+            </span>
+        </button>
+
+        <!-- Características -->
+        <div class="app-features">
+            <div class="text-left" >
+                <h3 class="purple-text font-bold text-lg mb-2" style="text-align: center;">Características</h3>
+                <ul class="purple-text text-gray-700 list-none" style="list-style: none; text-align: left;">
+                    <li>✔ Consulta por voz o texto</li>
+                    <li>✔ Compatible con MySQL, PostgreSQL, SQLite y más</li>
+                    <li>✔ Interfaz intuitiva</li>
+                </ul>
             </div>
-        </section>
-        <section id="how-it-works" class="py-20 px-6 text-center">
-            <h3 class="text-3xl font-semibold mb-10">¿Cómo funciona?</h3>
-            <ol class="text-left max-w-2xl mx-auto space-y-4 text-lg">
-                <li>1. Escribe o habla tu pregunta sobre los datos.</li>
-                <li>2. El asistente interpreta y genera una consulta SQL.</li>
-                <li>3. Ves los resultados y puedes refinarlos con un clic.</li>
-            </ol>
-        </section>
-        <section class="bg-purple-600 text-white py-20 text-center">
-            <h3 class="text-3xl font-semibold mb-6">¡Empieza a usar SQL Assistant hoy mismo!</h3>
-            <a href="#start" class="bg-white text-purple-700 font-semibold px-6 py-3 rounded shadow-lg hover:bg-gray-100">
-                Crear cuenta gratis
-            </a>
-        </section>
-        <router-link to="/chat">Ir al Chat </router-link>
-        <router-link to="/db_connection">Conectar Base de Datos</router-link>
-        <footer id="contact" class="bg-purple-800 text-white text-center py-6 text-sm">
-            <p>&copy; 2025 SQL Assistant. Todos los derechos reservados.</p>
-        </footer>
+            <img src="@/assets/logoinicio.png" alt="logo-pc" >
+        </div>
+  
+        <!-- Cómo funciona -->
+        <div class="text-left">
+          <h3 class="purple-text font-bold text-lg mb-2">¿Cómo funciona?</h3>
+          <p class="purple-text">
+            Escribe o expresa qué deseas hacer. Te brindamos la consulta SQL adecuada en segundos.
+          </p>
+        </div>
+  
+        <!-- CTA -->
+        <a href="#" class="bg-blue-700 text-white py-2 px-6 rounded-full shadow hover:bg-blue-800">
+          ¡Empieza a usar SQL Assistant hoy mismo!
+        </a>
+      </div>
     </div>
-</template>
+  </template>
 
 <script>
 const { url } = require('../../api_config.js')
@@ -105,5 +94,58 @@ footer {
     margin-top: 20px;
     font-size: 0.9em;
     color: #555;
+}
+
+.min-h-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.logo-app {
+    border-radius: 20px;
+}
+
+.logo-title {
+    padding: 30px 0px;
+    background-color: #D1B3E0;
+}
+
+.text-white {
+    color: #FFFFFF;
+}
+
+.bg-white {
+    background-color: #FFFFFF;
+}
+
+.purple-text {
+    color: 	#6A1B9A;
+}
+
+.purple-button {
+    background-color: #6A1B9A;
+    color: #FFFFFF;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+}
+
+.app-features {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    margin: 0 auto;
+}
+
+.app-features {
+  width: 80%;
+  margin: 2rem auto; /* Centra horizontalmente y da espacio arriba/abajo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem; /* Espacio entre el texto y la imagen */
+  flex-wrap: wrap; /* Para que se adapte en pantallas pequeñas */
 }
 </style>

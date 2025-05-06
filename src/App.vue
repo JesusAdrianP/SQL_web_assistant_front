@@ -1,5 +1,4 @@
 <template>
-  <img alt="Vue logo" src="./assets/logoapp.png">
   <router-view />
 </template>
 
@@ -17,10 +16,13 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+body {
+  margin: 0px;
+  font-family: 'Times New Roman', Times, serif;
 }
 img {
-  width: 20%;
-  height: 20%;
+  width: 10%;
+  height: 10%;
 }
 </style>
