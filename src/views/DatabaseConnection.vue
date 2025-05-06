@@ -1,25 +1,26 @@
 <template>
     <div class="database-connection">
-        <h1>Database Connection</h1>
+        <h1>Conecta tu base de datos</h1>
         <form @submit.prevent="submitForm">
             <div class="form-group">
-                <label for="db_name">Database Name:</label>
+                <label for="db_name">Nombre de la base de datos:</label>
                 <input type="text" id="db_name" v-model="form.db_name" required />
             </div>
             <div class="form-group">
-                <label for="db_user">Database User:</label>
+                <label for="db_user">Usuario de la base de datos:</label>
                 <input type="text" id="db_user" v-model="form.db_user" required />
             </div>
             <div class="form-group">
-                <label for="db_password">Database Password:</label>
+                <label for="db_password">Contraseña de la base de datos:</label>
                 <input type="password" id="db_password" v-model="form.db_password" required />
             </div>
             <div class="form-group">
-                <label for="db_host">Database Host:</label>
+                <label for="db_host">Host de la base de datos:</label>
                 <input type="text" id="db_host" v-model="form.db_host" required />
             </div>
-            <button type="submit">Connect</button>
+            <button type="submit">Conectar</button>
         </form>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </div>
 </template>
 
@@ -36,13 +37,23 @@ export default {
                 db_user: '',
                 db_password: '',
                 db_host: ''
-            }
+            },
+            errorMessage: ''
         };
     },
     methods: {
-        submitForm() {
-            console.log('Form submitted:', this.form);
-            // Add your logic to handle the form submission
+        goToView () {
+            this.$router.push({ name: 'ChatView' })
+        },
+        async submitForm() {
+            try {
+                const response = await axios.post("/generate_db_connection/", this.form);
+                console.log("Conexión a la base de datos exitosa:", response.data);
+                this.goToView()
+            } catch (error) {
+                console.error("Error al conectar a la base de datos:", error);
+                this.errorMessage = "Error al conectar a la base de datos. Verifica tus credenciales.";
+            }
         }
     }
 };
@@ -85,5 +96,11 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+.error-message {
+    color: red;
+    margin-top: 15px;
+    font-weight: bold;
 }
 </style>

@@ -13,7 +13,7 @@
         <p class="purple-text text-lg font-semibold">
           Tu asistente inteligente para bases de datos SQL
         </p>
-        <button class="purple-button">
+        <button class="purple-button" @click="goToView()">
             <span>
                 Empezar ahora
             </span>
@@ -63,6 +63,9 @@ export default {
         this.obtenerMensaje();
     },
     methods: {
+        goToView () {
+            this.$router.push({ name: 'DatabaseConnection' })
+        },
         async obtenerMensaje() {
             try {
                 const response = await axios.get("/");
@@ -84,18 +87,6 @@ export default {
     margin: 20px;
 }
 
-header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 0;
-}
-
-footer {
-    margin-top: 20px;
-    font-size: 0.9em;
-    color: #555;
-}
-
 .min-h-screen {
     display: flex;
     flex-direction: column;
@@ -109,7 +100,7 @@ footer {
 
 .logo-title {
     padding: 30px 0px;
-    background-color: #D1B3E0;
+    background-color: #a174c2;
 }
 
 .text-white {

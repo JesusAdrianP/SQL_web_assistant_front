@@ -4,6 +4,9 @@
             <div v-for="(message, index) in messages" :key="index" :class="message.sender">
                 <p>{{ message.text }}</p>
             </div>
+            <div v-if="isLoading" class="loading-indicator">
+                <div class="spinner"></div>
+            </div>
         </div>
         <div class="input-container">
             <input
@@ -12,12 +15,13 @@
                 type="text"
                 placeholder="Escribe tu mensaje..."
             />
-            <button @click="sendMessage">Enviar</button>
+            <button @click="sendMessage" :disabled="isLoading">Enviar</button>
         </div>
     </div>
 </template>
 
 <script>
+
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -27,6 +31,7 @@ export default {
         return {
             messages: [],
             userInput: "",
+            isLoading: false,
         };
     },
     methods: {
@@ -38,21 +43,25 @@ export default {
 
             const userMessage = this.userInput;
             this.userInput = "";
+            this.isLoading = true; // Show loading indicator
 
             try {
                 // Call the API to get the bot response
-                const response = await axios.post("https://api.example.com/chat", {
-                    message: userMessage,
+                const response = await axios.post("/translate/", {
+                    query: userMessage,
                 });
 
                 // Add bot response to the chat
-                this.messages.push({ text: response.data.reply, sender: "bot" });
+                this.messages.push({ text: response.data.sql_query, sender: "bot" });
+                console.log("Respuesta del bot:", response.data.sql_query);
             } catch (error) {
                 console.error("Error fetching bot response:", error);
                 this.messages.push({
                     text: "Lo siento, hubo un error al obtener la respuesta.",
                     sender: "bot",
                 });
+            } finally {
+                this.isLoading = false;
             }
         },
     },
@@ -129,7 +138,37 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button:hover:enabled {
     background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>
