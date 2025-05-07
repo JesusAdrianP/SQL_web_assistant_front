@@ -15,6 +15,7 @@
         <div v-if="responseData">
             <pre>{{ responseData }}</pre>
         </div>
+        <button @click="goToView" :disabled="isLoading">Siguiente</button>
     </div>
 </template>
 
@@ -28,23 +29,30 @@ export default {
       loading: false,
       error: null,
       responseData: null,
+      isLoading: false,
     };
   },
   methods: {
-    ...mapActions(['updateSelectedModel']), // Si estás usando Vuex para manejar el estado global
+    ...mapActions(['updateSelectModel']), // Si estás usando Vuex para manejar el estado global
     async handleModelChange() {
         this.loading = true;
         this.error = null; // Limpiar el error anterior
       // Limpiar el estado antes de hacer la nueva solicitud
       try {
-        this.updateSelectedModel(this.selectedModel);
+        await this.updateSelectModel(this.selectedModel);
+        console.log('Modelo actualizado:', this.selectedModel);
       } catch (error) {
         this.error = 'Error al actualizar el modelo.';
         console.log(error);
       } finally {
         this.loading = false;
+        this.isLoading = false;
+        console.log('Modelo seleccionado:', this.selectedModel);
       }
     },
+    goToView () {
+      this.$router.push({ name: 'ChatView' })
+    }
   }
 };
 </script>
@@ -68,9 +76,29 @@ export default {
   border-radius: 10px;
   border: 2px solid #bfafdf;
   padding: 8px;
+  margin-right: 10px;
 }
 
 .select-model-container select:focus {
   border: 2px solid #391872;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #6A1B9A;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+button:hover:enabled {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 </style>

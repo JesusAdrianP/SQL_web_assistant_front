@@ -7,6 +7,20 @@
             <div v-if="isLoading" class="loading-indicator">
                 <div class="spinner"></div>
             </div>
+            <div v-if="tableData.columns && tableData.columns.length > 0" class="result-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th v-for="(column, index) in tableData.columns" :key="index">{{ column }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(row, rowIndex) in tableData.query_result" :key="rowIndex">
+                            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="input-container">
             <input
@@ -21,7 +35,7 @@
 </template>
 
 <script>
-
+import { mapGetters } from 'vuex';
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -32,7 +46,14 @@ export default {
             messages: [],
             userInput: "",
             isLoading: false,
+            tableData: {
+                columns: [],
+                query_result: [],
+            },
         };
+    },
+    computed: {
+        ...mapGetters(['getSelectedModel']), // Si estás usando Vuex para manejar el estado global
     },
     methods: {
         async sendMessage() {
@@ -47,12 +68,13 @@ export default {
 
             try {
                 // Call the API to get the bot response
-                const response = await axios.post("/translate/", {
+                const response = await axios.post(`/${this.getSelectedModel}/execute_query/`, {
                     query: userMessage,
                 });
-
+                this.tableData.columns = response.data.columns; // Get columns from the response
+                this.tableData.query_result = response.data.query_result; // Get query result from the response
                 // Add bot response to the chat
-                this.messages.push({ text: response.data.sql_query, sender: "bot" });
+                this.messages.push({ text: "Resultados obtenidos. Consulta la tabla abajo.", sender: "bot" });
                 console.log("Respuesta del bot:", response.data.sql_query);
             } catch (error) {
                 console.error("Error fetching bot response:", error);
@@ -161,6 +183,31 @@ button:disabled {
     border-top: 4px solid #007bff;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+.result-table {
+    margin: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #6A1B9A;
+    color: white;
+}
+
+td {
+    background-color: #f9f9f9;
 }
 
 @keyframes spin {
