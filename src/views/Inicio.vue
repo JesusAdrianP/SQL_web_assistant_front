@@ -24,8 +24,8 @@
             <div class="text-left" >
                 <h3 class="purple-text font-bold text-lg mb-2" style="text-align: center;">Características</h3>
                 <ul class="purple-text text-gray-700 list-none" style="list-style: none; text-align: left;">
-                    <li>✔ Consulta por voz o texto</li>
-                    <li>✔ Compatible con MySQL, PostgreSQL, SQLite y más</li>
+                    <li>✔ Consulta por texto</li>
+                    <li>✔ Compatible con PostgreSQL</li>
                     <li>✔ Interfaz intuitiva</li>
                 </ul>
             </div>
