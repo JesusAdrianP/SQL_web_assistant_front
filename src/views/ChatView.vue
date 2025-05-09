@@ -1,41 +1,53 @@
 <template>
-    <div class="chat-container">
-        <div class="messages">
-            <div v-for="(message, index) in messages" :key="index" :class="message.sender">
-                <p>{{ message.text }}</p>
-            </div>
-            <div v-if="isLoading" class="loading-indicator">
-                <div class="spinner"></div>
-            </div>
-            <div v-if="tableData.columns && tableData.columns.length > 0" class="result-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th v-for="(column, index) in tableData.columns" :key="index">{{ column }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(row, rowIndex) in tableData.query_result" :key="rowIndex">
-                            <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <div class="principal-container">
+        <div class="model-select">
+            <h2>Cambia el Modelo</h2>
+            <!-- Dropdown para seleccionar el modelo -->
+            <select v-model="selectedModel" @change="handleModelChange">
+                <option disabled value="">Selecciona un modelo</option>
+                <option value="t5">T5</option>
+                <option value="gemini">Gemini</option>
+            </select>
         </div>
-        <div class="input-container">
-            <input
+        <div class="chat-container">
+            <div class="messages">
+                <div v-for="(message, index) in messages" :key="index" :class="message.sender">
+                    <p>{{ message.text }}</p>
+                </div>
+                <div v-if="isLoading" class="loading-indicator">
+                    <div class="spinner"></div>
+                </div>
+                <div v-if="tableData.columns && tableData.columns.length > 0" class="result-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th v-for="(column, index) in tableData.columns" :key="index">{{ column }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, rowIndex) in tableData.query_result" :key="rowIndex">
+                                <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="input-container">
+                <input
                 v-model="userInput"
                 @keyup.enter="sendMessage"
                 type="text"
                 placeholder="Escribe tu mensaje..."
-            />
-            <button @click="sendMessage" :disabled="isLoading">Enviar</button>
-        </div>
+                />
+                 <button @click="sendMessage" :disabled="isLoading">Enviar</button>
+                </div>
+            </div>
     </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -75,15 +87,33 @@ export default {
                 this.tableData.query_result = response.data.query_result; // Get query result from the response
                 // Add bot response to the chat
                 this.messages.push({ text: "Resultados obtenidos. Consulta la tabla abajo.", sender: "bot" });
+                console.log("url: ", `/${this.getSelectedModel}/execute_query/`)
                 console.log("Respuesta del bot:", response.data.sql_query);
             } catch (error) {
                 console.error("Error fetching bot response:", error);
                 this.messages.push({
-                    text: "Lo siento, hubo un error al obtener la respuesta.",
+                    text: "Lo siento, hubo un error al obtener la respuesta. Prueba con otro modelo o reestructura la pregunta.",
                     sender: "bot",
                 });
             } finally {
                 this.isLoading = false;
+            }
+        },
+        ...mapActions(['updateSelectModel']), // Si estás usando Vuex para manejar el estado global
+        async handleModelChange() {
+            this.loading = true;
+            this.error = null; // Limpiar el error anterior
+            // Limpiar el estado antes de hacer la nueva solicitud
+            try {
+                await this.updateSelectModel(this.selectedModel);
+                console.log('Modelo actualizado:', this.selectedModel);
+            } catch (error) {
+                this.error = 'Error al actualizar el modelo.';
+                console.log(error);
+            } finally {
+                this.loading = false;
+                this.isLoading = false;
+                console.log('Modelo seleccionado:', this.selectedModel);
             }
         },
     },
@@ -100,6 +130,21 @@ export default {
     border: 1px solid #ccc;
     border-radius: 8px;
     overflow: hidden;
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 100%;
+}
+
+.model-select h2 {
+  color: #391872;
+}
+
+.model-select select {
+  color: #391872;
+  border-radius: 10px;
+  border: 2px solid #bfafdf;
+  padding: 8px;
+  margin-right: 10px;
 }
 
 .messages {
@@ -208,6 +253,15 @@ th {
 
 td {
     background-color: #f9f9f9;
+}
+
+.principal-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.model-select {
+    width: 30%;
 }
 
 @keyframes spin {
