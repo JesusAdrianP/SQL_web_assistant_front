@@ -1,0 +1,5 @@
+[*.{js,jsx,ts,tsx,vue}]
+indent_style = space              # Usa espacios (no tabs)
+indent_size = 2                   # Cada indentación es de 2 espacios
+trim_trailing_whitespace = true  # Elimina espacios al final de cada línea
+insert_final_newline = true      # Asegura que cada archivo termine con una línea en blanco
