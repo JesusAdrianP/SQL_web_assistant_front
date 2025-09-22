@@ -6,12 +6,18 @@ import DatabaseConnection from '../views/DatabaseConnection.vue'
 import SelectModel from '../views/SelectModel.vue'
 import SignUp from '../views/SignUp.vue'
 import LoginView from '../views/LoginView.vue'
+import HomeView from '../views/HomeView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'InicioView',
     component: InicioView
+  },
+  {
+    path: '/home',
+    name: 'HomeView',
+    component: HomeView
   },
   {
     path: '/chat',

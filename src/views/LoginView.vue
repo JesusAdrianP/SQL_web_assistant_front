@@ -45,7 +45,7 @@ export default {
             this.$router.push({ name: 'SignUp' })
         },
         goToView () {
-            this.$router.push({ name: 'SelectModel' })
+            this.$router.push({ name: 'HomeView' })
         },
         async submitForm() {
             try {
