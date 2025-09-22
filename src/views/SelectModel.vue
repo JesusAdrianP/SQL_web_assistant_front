@@ -7,8 +7,9 @@
         <!-- Dropdown para seleccionar el modelo -->
          <select v-model="selectedModel" @change="handleModelChange">
             <option disabled value="">Selecciona un modelo</option>
-            <option value="t5">T5</option>
-            <option value="gemini">Gemini</option>
+            <option v-for="model in models" :key="model.id" :value="model.model_name">
+              {{ model.model_name }}
+            </option>
         </select>
         <div v-if="loading">Cargando...</div>
         <div v-if="error" class="error">Error: {{ error }}</div>
@@ -21,11 +22,15 @@
 
 <script>
 import { mapActions } from 'vuex';
+const { url } = require('../../api_config.js')
+const axios = require('axios')
+axios.defaults.baseURL = url
 
 export default {
   data() {
     return {
-      selectedModel: 't5', // Valor por defecto
+      models: [],
+      selectedModel: '', // Valor por defecto
       loading: false,
       error: null,
       responseData: null,
@@ -33,7 +38,28 @@ export default {
     };
   },
   methods: {
-    ...mapActions(['updateSelectModel']), // Si estás usando Vuex para manejar el estado global
+    ...mapActions(['updateSelectModel']),
+    async fetchModels() {
+      this.loading = true;
+      this.error = null; // Limpiar el error anterior
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/ai_models/get_models', 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        this.models = response.data;
+        console.log('Modelos obtenidos:', this.models);
+      } catch (error) {
+        this.error = 'Error al cargar los modelos.';
+        console.log(error);
+      } finally {
+        this.loading = false;
+      }
+    },
     async handleModelChange() {
         this.loading = true;
         this.error = null; // Limpiar el error anterior
@@ -53,6 +79,9 @@ export default {
     goToView () {
       this.$router.push({ name: 'ChatView' })
     }
+  },
+  mounted() {
+    this.fetchModels();
   }
 };
 </script>
