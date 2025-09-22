@@ -4,6 +4,9 @@
       <div class="logo-title rounded-xl p-6 mb-6">
         <img src="@/assets/logosinfondo.png" alt="SQL Assistant Logo" class="logo-app w-40 mx-auto" />
         <h1 class="text-white text-2xl font-bold text-center mt-4" style="margin-bottom: 0px;">SQL Assistant</h1>
+        <a href="#" @click="logoutApp">
+            <img class="logout-icon" src="@/assets/logout.png" alt="logout">
+        </a>
       </div>
   
       <!-- Card -->
@@ -20,7 +23,7 @@
                 <div class="module-block">
                     <a class="module-icon text-lg font-semibold">
                         <img src="@/assets/logo_db.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Base de Datos</span>
+                        <span class="module-label">Bases de Datos</span>
                     </a>
                 </div>
             </div>
@@ -58,6 +61,10 @@ export default {
         this.obtenerMensaje();
     },
     methods: {
+        logoutApp() {
+            localStorage.removeItem('token');
+            this.$router.push({ name: 'InicioView' });
+        },
         goToView () {
             this.$router.push({ name: 'LoginView' })
         },
@@ -103,6 +110,8 @@ export default {
 
 .text-white {
     color: #FFFFFF;
+    width: 100%;
+    text-align: left;
 }
 
 .bg-white {
@@ -198,5 +207,12 @@ export default {
     font-size: 26px;
     color: #333;
     font-weight: 600;
+}
+
+.logout-icon {
+    height: 80px;
+    width: 80px;
+    cursor: pointer;
+    padding: 0px 40px;
 }
 </style>
