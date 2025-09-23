@@ -26,7 +26,7 @@
                         <tbody>
                             <tr v-for="(db, index) in data" :key="index">
                                 <td>{{ db.db_name }}</td>
-                                <td>{{ db.db_user }}</td>
+                                <td>{{ new Date(db.created_at).toLocaleString() }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -73,7 +73,7 @@ export default {
                         }
                     }
                 );
-                this.data = response.data // Ajusta según la estructura de tu respuesta
+                this.data = response.data 
                 console.log("Mensaje obtenido:", response.data);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
