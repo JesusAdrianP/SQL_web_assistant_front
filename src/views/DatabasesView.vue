@@ -15,30 +15,22 @@
         <div class="app-modules">
             <div class="module-row">
                 <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
-                        <img src="@/assets/chat_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Chat</span>
-                    </a>
-                </div>
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold" href="#" @click="goToDatabases">
-                        <img src="@/assets/logo_db.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Bases de Datos</span>
-                    </a>
-                </div>
-            </div>
-            <div class="module-row">
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
-                        <img src="@/assets/profile_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Perfil</span>
-                    </a>
-                </div>
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
-                        <img src="@/assets/dashboard_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Dashboard</span>
-                    </a>
+                    <h1>Bases de datos sincronizadas</h1>
+                    <table class="table-base" v-if="data.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Fecha de Sincronización</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(db, index) in data" :key="index">
+                                <td>{{ db.db_name }}</td>
+                                <td>{{ db.db_user }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="purple-button" @click="syncDatabases">Sincronizar nueva Base de datos</button>
                 </div>
             </div>
         </div>
@@ -51,18 +43,18 @@ const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
 export default {
-    name: "HomeView",
+    name: "DatabasesView",
     data() {
         return {
-            mensaje: "Cargando mensaje...",
+            data: [],
         };
     },
     mounted() {
-        this.obtenerMensaje();
+        this.fetchData();
     },
     methods: {
-        goToDatabases() {
-            this.$router.push({ name: 'DatabasesView' })
+        syncDatabases() {
+            this.$router.push({ name: 'DatabaseConnection' })
         },
         logoutApp() {
             localStorage.removeItem('token');
@@ -71,11 +63,18 @@ export default {
         goToView () {
             this.$router.push({ name: 'LoginView' })
         },
-        async obtenerMensaje() {
+        async fetchData() {
             try {
-                const response = await axios.get("/");
-                this.mensaje = response.data.message; // Ajusta según la estructura de tu respuesta
-                console.log("Mensaje obtenido:", response.data.message);
+                const token = localStorage.getItem('token');
+                const response = await axios.get("/user_dbs/user_dbs",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                this.data = response.data // Ajusta según la estructura de tu respuesta
+                console.log("Mensaje obtenido:", response.data);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
@@ -126,7 +125,7 @@ export default {
 }
 
 .purple-button {
-    background-color: #6A1B9A;
+    background-color: #5b4288;
     color: #FFFFFF;
     padding: 15px;
     border-radius: 10px;
@@ -189,7 +188,6 @@ export default {
     flex: 1;
     border-radius: 10px;
     padding: 20px;
-    cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #ffffff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -204,7 +202,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-decoration: none;
 }
 
 .module-label {
@@ -219,5 +216,24 @@ export default {
     width: 80px;
     cursor: pointer;
     padding: 0px 40px;
+}
+
+.table-base {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.table-base thead {
+    background-color: #f4f5f8;
+}
+
+.table-base th, .table-base td {
+    padding: 8px;
+}
+.table-base tr {
+    border-radius: 8px;
 }
 </style>

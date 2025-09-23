@@ -7,6 +7,7 @@ import SelectModel from '../views/SelectModel.vue'
 import SignUp from '../views/SignUp.vue'
 import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
+import DatabasesView from '@/views/DatabasesView.vue'
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
     path: '/signup',
     name: 'SignUp',
     component: SignUp
+  },
+  {
+    path: '/databases',
+    name: 'DatabasesView',
+    component: DatabasesView
   }
 ]
 
