@@ -9,13 +9,13 @@
         </a>
       </div>
       <div class="bg-white max-w-xl w-full rounded-2xl shadow-lg p-8 text-center space-y-6">
-        <h2 class="home-text text-xl font-bold">Inicio</h2>
+        <h2 class="home-text text-xl font-bold">Bases de datos</h2>
         <div class="app-modules">
             <div class="module-row">
                 <div class="module-block">
                     <div class="form-container">
                         <div class="database-connection">
-                            <h1>Conecta tu base de datos</h1>
+                            <h1 class="module-title">Conecta tu base de datos</h1>
                             <form @submit.prevent="submitForm">
                                 <div class="form-group">
                                     <label for="db_name">Nombre de la base de datos:</label>
@@ -45,11 +45,15 @@
                 </div>
             </div>
         </div>
+        <button @click="goBack" class="back-button">
+            <ArrowLeftIcon /> <span> Volver</span>
+        </button>
       </div>
     </div>
 </template>
 
 <script>
+import { ArrowLeftIcon } from 'lucide-vue-next'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -68,7 +72,13 @@ export default {
             errorMessage: ''
         };
     },
+    components: {
+        ArrowLeftIcon
+    },
     methods: {
+        goBack() {
+            this.$router.go(-1); 
+        },
         logoutApp() {
             localStorage.removeItem('token');
             this.$router.push({ name: 'InicioView' });
@@ -214,5 +224,25 @@ button:hover {
     width: 80px;
     cursor: pointer;
     padding: 0px 40px;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+.back-button:hover {
+    background-color: #5b4288;
+    color: #ffffff;
+}
+
+.module-title{
+    margin-top: 0px;
 }
 </style>

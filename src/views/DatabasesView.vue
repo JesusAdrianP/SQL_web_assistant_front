@@ -11,11 +11,11 @@
   
       <!-- Card -->
       <div class="bg-white max-w-xl w-full rounded-2xl shadow-lg p-8 text-center space-y-6">
-        <h2 class="home-text text-xl font-bold">Inicio</h2>
+        <h2 class="home-text text-xl font-bold">Bases de datos</h2>
         <div class="app-modules">
             <div class="module-row">
                 <div class="module-block">
-                    <h1>Bases de datos sincronizadas</h1>
+                    <h1 class="module-title">Bases de datos sincronizadas</h1>
                     <table class="table-base" v-if="data.length > 0">
                         <thead>
                             <tr>
@@ -34,11 +34,15 @@
                 </div>
             </div>
         </div>
+        <button @click="goBack" class="back-button">
+            <ArrowLeftIcon /> <span> Volver</span>
+        </button>
       </div>
     </div>
   </template>
 
 <script>
+import { ArrowLeftIcon } from 'lucide-vue-next'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -52,16 +56,19 @@ export default {
     mounted() {
         this.fetchData();
     },
+    components: {
+        ArrowLeftIcon
+    },
     methods: {
+        goBack() {
+            this.$router.go(-1); 
+        },
         syncDatabases() {
             this.$router.push({ name: 'DatabaseConnection' })
         },
         logoutApp() {
             localStorage.removeItem('token');
             this.$router.push({ name: 'InicioView' });
-        },
-        goToView () {
-            this.$router.push({ name: 'LoginView' })
         },
         async fetchData() {
             try {
@@ -235,5 +242,32 @@ export default {
 }
 .table-base tr {
     border-radius: 8px;
+}
+
+.table-base tbody tr:not(:last-child) {
+    border-bottom: 1px solid #cccccc82;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #2c3e50;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.back-button:hover {
+    background-color: #5b4288;
+    color: #ffffff;
+}
+
+.module-title{
+    margin-top: 0px;
 }
 </style>

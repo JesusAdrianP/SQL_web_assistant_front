@@ -5,9 +5,13 @@
             <!-- Dropdown para seleccionar el modelo -->
             <select v-model="selectedModel" @change="handleModelChange">
                 <option disabled value="">Selecciona un modelo</option>
-                <option value="t5">T5</option>
-                <option value="gemini">Gemini</option>
+                <option v-for="model in models" :key="model.id" :value="model">
+                    {{ model.model_name }}
+                </option>
             </select>
+            <button @click="goBack" class="back-button">
+                <ArrowLeftIcon /> <span> Volver</span>
+            </button>
         </div>
         <div class="chat-container">
             <div class="messages">
@@ -46,6 +50,7 @@
 </template>
 
 <script>
+import { ArrowLeftIcon } from 'lucide-vue-next'
 import { mapGetters } from 'vuex';
 import { mapActions } from 'vuex';
 const { url } = require('../../api_config.js')
@@ -55,6 +60,10 @@ export default {
     name: "ChatView",
     data() {
         return {
+            models: [],
+            selectedModel: '', // Valor por defecto
+            loading: false,
+            error: null,
             messages: [],
             userInput: "",
             isLoading: false,
@@ -64,10 +73,16 @@ export default {
             },
         };
     },
+    components: {
+        ArrowLeftIcon
+    },
     computed: {
         ...mapGetters(['getSelectedModel']), // Si estás usando Vuex para manejar el estado global
     },
     methods: {
+        goBack() {
+            this.$router.go(-1); 
+        },
         async sendMessage() {
             if (this.userInput.trim() === "") return;
 
@@ -100,23 +115,50 @@ export default {
             }
         },
         ...mapActions(['updateSelectModel']), // Si estás usando Vuex para manejar el estado global
+        async fetchModels() {
+            this.loading = true;
+            this.error = null;
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('/ai_models/get_models',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                this.models = response.data;
+                console.log('Modelos obtenidos:', this.models);
+            } catch (error) {
+                this.error = 'Error al cargar los modelos.';
+                console.log(error);
+            } finally {
+                this.loading = false;
+            }
+        },
         async handleModelChange() {
             this.loading = true;
             this.error = null; // Limpiar el error anterior
             // Limpiar el estado antes de hacer la nueva solicitud
             try {
-                await this.updateSelectModel(this.selectedModel);
-                console.log('Modelo actualizado:', this.selectedModel);
+                localStorage.setItem('selectedModel', this.selectedModel.id);
+                localStorage.setItem('selectedModelName', this.selectedModel.model_name);
+                await this.updateSelectModel({ id: this.selectedModel.id, model_name: this.selectedModel.model_name });
+                console.log('Modelo actualizado:', this.selectedModel.model_name);
             } catch (error) {
                 this.error = 'Error al actualizar el modelo.';
                 console.log(error);
             } finally {
                 this.loading = false;
                 this.isLoading = false;
-                console.log('Modelo seleccionado:', this.selectedModel);
+                console.log('Modelo seleccionado:', this.selectedModel.id);
+                console.log('Modelo obtenido:', localStorage.getItem('selectedModel'));
             }
         },
     },
+    mounted() {
+        this.fetchModels();
+    }
 };
 </script>
 
@@ -262,6 +304,29 @@ td {
 
 .model-select {
     width: 30%;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #2c3e50;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.back-button:hover {
+    background-color: #5b4288;
+    color: #ffffff;
 }
 
 @keyframes spin {

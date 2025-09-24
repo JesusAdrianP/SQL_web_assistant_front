@@ -8,6 +8,7 @@ import SignUp from '../views/SignUp.vue'
 import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
 import DatabasesView from '@/views/DatabasesView.vue'
+import QueriesView from '@/views/QueriesView.vue'
 
 const routes = [
   {
@@ -49,6 +50,11 @@ const routes = [
     path: '/databases',
     name: 'DatabasesView',
     component: DatabasesView
+  },
+  {
+    path: '/queries',
+    name: 'QueriesView',
+    component: QueriesView
   }
 ]
 

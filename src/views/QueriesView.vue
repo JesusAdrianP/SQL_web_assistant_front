@@ -11,74 +11,79 @@
   
       <!-- Card -->
       <div class="bg-white max-w-xl w-full rounded-2xl shadow-lg p-8 text-center space-y-6">
-        <h2 class="home-text text-xl font-bold">Inicio</h2>
+        <h2 class="home-text text-xl font-bold">Consultas</h2>
         <div class="app-modules">
             <div class="module-row">
                 <div class="module-block">
-                    <a class="module-icon text-lg font-semibold" href="#" @click="goToQueriesView">
-                        <img src="@/assets/chat_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Chat</span>
-                    </a>
-                </div>
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold" href="#" @click="goToDatabases">
-                        <img src="@/assets/logo_db.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Bases de Datos</span>
-                    </a>
-                </div>
-            </div>
-            <div class="module-row">
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
-                        <img src="@/assets/profile_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Perfil</span>
-                    </a>
-                </div>
-                <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
-                        <img src="@/assets/dashboard_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
-                        <span class="module-label">Dashboard</span>
-                    </a>
+                    <h1 class="module-title">Consultas realizadas</h1>
+                    <table class="table-base" v-if="data.length > 0">
+                        <thead>
+                            <tr>
+                                <th>Consulta</th>
+                                <th>Base de datos</th>
+                                <th>Modelo utilizado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(query, index) in data" :key="index">
+                                <td>{{ query.nl_query }}</td>
+                                <td>{{ query.user_db_name}}</td>
+                                <td>{{ query.ai_model_name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="purple-button" @click="newQuery">Iniciar nuevo chat</button>
                 </div>
             </div>
         </div>
+        <button @click="goBack" class="back-button">
+            <ArrowLeftIcon /> <span> Volver</span>
+        </button>
       </div>
     </div>
   </template>
 
 <script>
+import { ArrowLeftIcon } from 'lucide-vue-next'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
 export default {
-    name: "HomeView",
+    name: "QueriesView",
     data() {
         return {
-            mensaje: "Cargando mensaje...",
+            data: [],
         };
     },
     mounted() {
-        this.obtenerMensaje();
+        this.fetchData();
+    },
+    components: {
+        ArrowLeftIcon
     },
     methods: {
-        goToQueriesView() {
-            this.$router.push({ name: 'QueriesView' })
+        goBack() {
+            this.$router.go(-1); 
         },
-        goToDatabases() {
-            this.$router.push({ name: 'DatabasesView' })
+        newQuery() {
+            this.$router.push({ name: 'SelectModel' })
         },
         logoutApp() {
             localStorage.removeItem('token');
             this.$router.push({ name: 'InicioView' });
         },
-        goToView () {
-            this.$router.push({ name: 'LoginView' })
-        },
-        async obtenerMensaje() {
+        async fetchData() {
             try {
-                const response = await axios.get("/");
-                this.mensaje = response.data.message; // Ajusta según la estructura de tu respuesta
-                console.log("Mensaje obtenido:", response.data.message);
+                const token = localStorage.getItem('token');
+                const response = await axios.get("/queries/user_queries",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                this.data = response.data 
+                console.log("Mensaje obtenido:", response.data);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
@@ -129,7 +134,7 @@ export default {
 }
 
 .purple-button {
-    background-color: #6A1B9A;
+    background-color: #5b4288;
     color: #FFFFFF;
     padding: 15px;
     border-radius: 10px;
@@ -192,7 +197,6 @@ export default {
     flex: 1;
     border-radius: 10px;
     padding: 20px;
-    cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     background-color: #ffffff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -207,7 +211,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-decoration: none;
 }
 
 .module-label {
@@ -222,5 +225,51 @@ export default {
     width: 80px;
     cursor: pointer;
     padding: 0px 40px;
+}
+
+.table-base {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.table-base thead {
+    background-color: #f4f5f8;
+}
+
+.table-base th, .table-base td {
+    padding: 8px;
+}
+.table-base tr {
+    border-radius: 8px;
+}
+
+.table-base tbody tr:not(:last-child) {
+    border-bottom: 1px solid #cccccc82;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #2c3e50;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.back-button:hover {
+    background-color: #5b4288;
+    color: #ffffff;
+}
+
+.module-title{
+    margin-top: 0px;
 }
 </style>
