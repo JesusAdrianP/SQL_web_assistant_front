@@ -94,9 +94,18 @@ export default {
             this.isLoading = true; // Show loading indicator
 
             try {
+                const token = localStorage.getItem('token');
+                const ai_model_id = this.getSelectedModel.id
+                const user_db_id = localStorage.getItem('selectedDb')
                 // Call the API to get the bot response
-                const response = await axios.post(`/${this.getSelectedModel}/execute_query/`, {
-                    query: userMessage,
+                const response = await axios.post(`/queries/${this.getSelectedModel.model_name}/execute_query/`, {
+                    nl_query: userMessage,
+                    ai_model_id: ai_model_id,
+                    user_db_id: user_db_id
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 });
                 this.tableData.columns = response.data.columns; // Get columns from the response
                 this.tableData.query_result = response.data.query_result; // Get query result from the response

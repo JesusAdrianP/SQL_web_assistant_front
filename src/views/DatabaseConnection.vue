@@ -37,6 +37,10 @@
                                     <label for="db_schema">Esquema base de datos:</label>
                                     <input type="text" id="db_schema" v-model="form.db_schema" required />
                                 </div>
+                                <div class="form-group">
+                                    <label for="db_password">Contraseña de la base de datos:</label>
+                                    <input type="password" id="db_password" v-model="form.db_password" required />
+                                </div>
                                 <button type="submit">Conectar</button>
                             </form>
                             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -68,6 +72,7 @@ export default {
                 db_host: '',
                 db_schema: '',
                 user_id: localStorage.getItem('user_id'),
+                db_password: ''
             },
             errorMessage: ''
         };
