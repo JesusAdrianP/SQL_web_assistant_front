@@ -25,7 +25,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(query, index) in data" :key="index">
+                            <tr v-for="(query, index) in data" :key="index" @click="openModal(query.id)">
                                 <td>{{ query.nl_query }}</td>
                                 <td>{{ query.user_db_name}}</td>
                                 <td>{{ query.ai_model_name}}</td>
@@ -40,6 +40,43 @@
             <ArrowLeftIcon /> <span> Volver</span>
         </button>
       </div>
+      <!-- Modal -->
+        <div v-if="isModalOpen" class="overlay" @click.self="closeModal">
+            <div class="modal">
+                <h2 class="font-bold text-lg mb-2">Detalle de la consulta</h2>
+                <div v-if="loading">Cargando...</div>
+                <div v-else-if="selectedQuery">
+                    <p><strong>Consulta:</strong> {{ selectedQuery.nl_query }}</p>
+                    <p><strong>Base de datos:</strong> {{ selectedQuery.user_db_name }}</p>
+                    <p><strong>Modelo:</strong> {{ selectedQuery.ai_model_name }}</p>
+                    <label style="margin-right: 5px;" for="dropdown">¿El resultado es correcto?</label>
+                    <select class="query-value" v-model="selectedValue" @change="onValueChange" id="dropdown">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div v-if="tableData.columns && tableData.columns.length > 0" class="result-table">
+                    <table>
+                        <thead class="sticky top-0 z-10">
+                            <tr>
+                                <th v-for="(column, index) in tableData.columns" :key="index">{{ column }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(row, rowIndex) in tableData.query_result" :key="rowIndex">
+                                <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-buttons"> 
+                    <button class="close-btn" @click="closeModal">Cerrar</button>
+                    <button class="update-button" v-if="showUpdateButton" @click="updateQueryValue(selectedQuery.id)">
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
   </template>
 
@@ -53,6 +90,19 @@ export default {
     data() {
         return {
             data: [],
+            isModalOpen: false,
+            selectedQuery:null,
+            loading:false,
+            tableData: {
+                columns: [],
+                query_result: [],
+            },
+            originalValue: null,
+            selectedValue: null,
+            showUpdateButton: false,
+            formToUpdate: {
+                is_correct: null,
+            },
         };
     },
     mounted() {
@@ -89,6 +139,66 @@ export default {
                 this.mensaje = "Error al cargar el mensaje.";
             }
         },
+        async openModal(query_id) {
+            this.isModalOpen = true
+            this.loading = true
+            this.selectedQuery = null
+            try {
+                const token = localStorage.getItem('token')
+                const response = await axios.get(`/queries/user_queries/${query_id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                const query_data = response.data
+                const query_result_data = query_data.query_result
+                const is_correct_query = query_data.is_correct
+                this.originalValue = is_correct_query
+                this.selectedValue = is_correct_query
+                console.log("original value:", this.originalValue)
+                console.log("selected value:", this.selectedValue)
+                this.tableData.query_result = query_result_data.query_result
+                this.tableData.columns = query_result_data.columns
+                this.selectedQuery = query_data
+            } catch (error) {
+                console.log("Error: ", error)
+                this.mensaje = `Error al obtener los datos ${error}`
+            } finally {
+                this.loading = false
+            }
+        },
+        closeModal() {
+            this.selectedQuery = null
+            this.isModalOpen = false
+        },
+        onValueChange() {
+            this.showUpdateButton = this.selectedValue != this.originalValue
+        },
+        async updateQueryValue(query_id) {
+            const valueToSend = this.selectedValue
+            try {
+                const token = localStorage.getItem('token')
+                this.formToUpdate.is_correct = valueToSend
+                const response = await axios.put(`/queries/update_query/${query_id}`, this.formToUpdate,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                console.log("Sent Value:", valueToSend)
+                console.log("original value:", this.selectedValue)
+                console.log("Response: ", response)
+            } catch (error) {
+                console.log("Error al actualizar: ", error)
+                this.mensaje = `Error al actualizar ${error}`
+            } finally {
+                this.originalValue = this.selectedValue
+                this.showUpdateButton = false
+            }
+        }
     },
 };
 </script>
@@ -271,5 +381,94 @@ export default {
 
 .module-title{
     margin-top: 0px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  max-height: 85vh;
+  text-align: left;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.close-btn {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background: #5b4288;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #5b4288;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: #0056b3;
+}
+
+.update-button:hover {
+    background-color: #0056b3;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.result-table {
+    flex: 1;                
+    max-height: 50vh;       
+    overflow-y: auto;       
+    margin-bottom: 1rem;
+}
+
+.result-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #5b4288;
+    color: #fff;
+}
+
+.result-table thead th{
+    padding: 5px;
+}
+
+#dropdown {
+    margin-bottom: 8px;
+}
+
+.query-value {
+  color: #391872;
+  border-radius: 10px;
+  border: 2px solid #bfafdf;
+  padding: 8px;
+  margin-right: 10px;
+}
+
+.query-value select:focus {
+  border: 2px solid #391872;
 }
 </style>
