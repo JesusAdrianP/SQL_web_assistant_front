@@ -35,7 +35,7 @@
                     </a>
                 </div>
                 <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
+                    <a class="module-icon text-lg font-semibold" href="#" @click="goToDashboars">
                         <img src="@/assets/dashboard_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
                         <span class="module-label">Dashboard</span>
                     </a>
@@ -61,6 +61,9 @@ export default {
         this.obtenerMensaje();
     },
     methods: {
+        goToDashboars() {
+            this.$router.push({ name: 'DashboardsView'})
+        },
         goToQueriesView() {
             this.$router.push({ name: 'QueriesView' })
         },
@@ -77,7 +80,7 @@ export default {
         async obtenerMensaje() {
             try {
                 const response = await axios.get("/");
-                this.mensaje = response.data.message; // Ajusta según la estructura de tu respuesta
+                this.mensaje = response.data.message; 
                 console.log("Mensaje obtenido:", response.data.message);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);

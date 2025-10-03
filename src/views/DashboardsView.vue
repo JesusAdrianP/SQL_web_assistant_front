@@ -11,11 +11,11 @@
   
       <!-- Card -->
       <div class="bg-white max-w-xl w-full rounded-2xl shadow-lg p-8 text-center space-y-6">
-        <h2 class="home-text text-xl font-bold">Consultas</h2>
+        <h2 class="home-text text-xl font-bold">Dashboards</h2>
         <div class="app-modules">
             <div class="module-row">
                 <div class="module-block">
-                    <h1 class="module-title">Consultas realizadas</h1>
+                    <h1 class="module-title">Rendimiento y uso</h1>
                     <div>
                         <select class="query-value" v-model="selectedDb" @change="handleDbChange">
                             <option disabled value="">Selecciona una base de datos</option>
@@ -25,23 +25,16 @@
                         </select>
                         <button class="purple-button" @click="filterByDb">Filtrar</button>
                     </div>
-                    <table class="table-base" v-if="data.length > 0">
-                        <thead>
-                            <tr>
-                                <th>Consulta</th>
-                                <th>Base de datos</th>
-                                <th>Modelo utilizado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(query, index) in data" :key="index" @click="openModal(query.id)">
-                                <td>{{ query.nl_query }}</td>
-                                <td>{{ query.user_db_name}}</td>
-                                <td>{{ query.ai_model_name}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class="purple-button" @click="newQuery">Iniciar nuevo chat</button>
+                    <div class="graphics">
+                        <div class="dashboard">
+                            <h2>Uso de Modelos en Consultas</h2>
+                            <PieChart :labels="modelLabels" :data="modelUsage" />
+                        </div>
+                        <div class="dashboard">
+                            <h2>Precisión de los Modelos en Consultas</h2>
+                            <BarChart :labels="modelLabels" :correct="modelCorrect" :incorrect="modelIncorrect"/>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,71 +42,29 @@
             <ArrowLeftIcon /> <span> Volver</span>
         </button>
       </div>
-      <!-- Modal -->
-        <div v-if="isModalOpen" class="overlay" @click.self="closeModal">
-            <div class="modal">
-                <h2 class="font-bold text-lg mb-2">Detalle de la consulta</h2>
-                <div v-if="loading">Cargando...</div>
-                <div v-else-if="selectedQuery">
-                    <p><strong>Consulta:</strong> {{ selectedQuery.nl_query }}</p>
-                    <p><strong>Base de datos:</strong> {{ selectedQuery.user_db_name }}</p>
-                    <p><strong>Modelo:</strong> {{ selectedQuery.ai_model_name }}</p>
-                    <label style="margin-right: 5px;" for="dropdown">¿El resultado es correcto?</label>
-                    <select class="query-value" v-model="selectedValue" @change="onValueChange" id="dropdown">
-                        <option value="true">Sí</option>
-                        <option value="false">No</option>
-                    </select>
-                </div>
-                <div v-if="tableData.columns && tableData.columns.length > 0" class="result-table">
-                    <table>
-                        <thead class="sticky top-0 z-10">
-                            <tr>
-                                <th v-for="(column, index) in tableData.columns" :key="index">{{ column }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(row, rowIndex) in tableData.query_result" :key="rowIndex">
-                                <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-buttons"> 
-                    <button class="close-btn" @click="closeModal">Cerrar</button>
-                    <button class="update-button" v-if="showUpdateButton" @click="updateQueryValue(selectedQuery.id)">
-                        Actualizar
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
   </template>
 
 <script>
+import PieChart from '@/components/PieChart.vue'
+import BarChart from '@/components/BarChart.vue'
 import { ArrowLeftIcon } from 'lucide-vue-next'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
 export default {
-    name: "QueriesView",
+    name: "DashboardsView",
     data() {
         return {
+            modelLabels: [],
+            modelUsage: [],
+            modelCorrect: [],
+            modelIncorrect: [],
             data: [],
-            isModalOpen: false,
-            selectedQuery:null,
             loading:false,
-            tableData: {
-                columns: [],
-                query_result: [],
-            },
-            originalValue: null,
-            selectedValue: null,
-            showUpdateButton: false,
-            formToUpdate: {
-                is_correct: null,
-            },
             databases:[],
             selectedDb: '',
+            error: null,
         };
     },
     mounted() {
@@ -121,14 +72,13 @@ export default {
         this.fetchDatabases();
     },
     components: {
-        ArrowLeftIcon
+        ArrowLeftIcon,
+        PieChart,
+        BarChart
     },
     methods: {
         goBack() {
             this.$router.go(-1); 
-        },
-        newQuery() {
-            this.$router.push({ name: 'SelectModel' })
         },
         logoutApp() {
             localStorage.removeItem('token');
@@ -157,78 +107,22 @@ export default {
         async fetchData() {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get("/queries/user_queries",
+                const response = await axios.get("/ai_models/calculate_model_performance",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
                         }
                     }
                 );
-                this.data = response.data 
-                console.log("Mensaje obtenido:", response.data);
+                console.log('Datos obtenidos:', response.data);
+                this.modelUsage = response.data.performance_stats.map(item => item.usage_percentage);
+                this.modelLabels = response.data.performance_stats.map(item => item.model_name);
+                this.modelCorrect = response.data.performance_stats.map(item => item.correct_quantity);
+                this.modelIncorrect = response.data.performance_stats.map(item => item.incorrect_quantity);
+                console.log('Datos obtenidos:', this.models);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
-            }
-        },
-        async openModal(query_id) {
-            this.isModalOpen = true
-            this.loading = true
-            this.selectedQuery = null
-            try {
-                const token = localStorage.getItem('token')
-                const response = await axios.get(`/queries/user_queries/${query_id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
-                const query_data = response.data
-                const query_result_data = query_data.query_result
-                const is_correct_query = query_data.is_correct
-                this.originalValue = is_correct_query
-                this.selectedValue = is_correct_query
-                console.log("original value:", this.originalValue)
-                console.log("selected value:", this.selectedValue)
-                this.tableData.query_result = query_result_data.query_result
-                this.tableData.columns = query_result_data.columns
-                this.selectedQuery = query_data
-            } catch (error) {
-                console.log("Error: ", error)
-                this.mensaje = `Error al obtener los datos ${error}`
-            } finally {
-                this.loading = false
-            }
-        },
-        closeModal() {
-            this.selectedQuery = null
-            this.isModalOpen = false
-        },
-        onValueChange() {
-            this.showUpdateButton = this.selectedValue != this.originalValue
-        },
-        async updateQueryValue(query_id) {
-            const valueToSend = this.selectedValue
-            try {
-                const token = localStorage.getItem('token')
-                this.formToUpdate.is_correct = valueToSend
-                const response = await axios.put(`/queries/update_query/${query_id}`, this.formToUpdate,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
-                console.log("Sent Value:", valueToSend)
-                console.log("original value:", this.selectedValue)
-                console.log("Response: ", response)
-            } catch (error) {
-                console.log("Error al actualizar: ", error)
-                this.mensaje = `Error al actualizar ${error}`
-            } finally {
-                this.originalValue = this.selectedValue
-                this.showUpdateButton = false
             }
         },
         async filterByDb() {
@@ -518,5 +412,22 @@ export default {
 
 .query-value select:focus {
   border: 2px solid #391872;
+}
+
+.graphics {
+    width: 100%;
+    display: flex;
+    gap: 80px;
+}
+
+.dashboard {
+    flex: 1;
+    max-width: 45%; /* 🔹 cada gráfico ocupa aprox la mitad */
+    background: #fff;
+    padding: 1rem;
+}
+
+.dashboard canvas{
+    max-height: 300px;
 }
 </style>
