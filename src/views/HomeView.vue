@@ -29,7 +29,7 @@
             </div>
             <div class="module-row">
                 <div class="module-block">
-                    <a class="module-icon text-lg font-semibold">
+                    <a class="module-icon text-lg font-semibold" href="#" @click="goToProfile">
                         <img src="@/assets/profile_logo.png" alt="chat-modulo" style="vertical-align: middle; margin-right: 10px;">
                         <span class="module-label">Perfil</span>
                     </a>
@@ -61,6 +61,9 @@ export default {
         this.obtenerMensaje();
     },
     methods: {
+        goToProfile(){
+            this.$router.push({name: 'ProfileView'})
+        },
         goToDashboars() {
             this.$router.push({ name: 'DashboardsView'})
         },

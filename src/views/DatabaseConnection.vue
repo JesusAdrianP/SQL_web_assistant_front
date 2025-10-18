@@ -123,14 +123,25 @@ export default {
 }
 
 label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
 }
 
 input {
-    padding: 8px;
-    box-sizing: border-box;
+  width: 50%;
+  padding: 0.8rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+}
+
+input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .home-text {
