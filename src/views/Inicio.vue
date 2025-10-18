@@ -64,7 +64,7 @@ export default {
     },
     methods: {
         goToView () {
-            this.$router.push({ name: 'DatabaseConnection' })
+            this.$router.push({ name: 'LoginView' })
         },
         async obtenerMensaje() {
             try {
