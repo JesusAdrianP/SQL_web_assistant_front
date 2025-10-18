@@ -25,7 +25,7 @@
                         </select>
                         <button class="purple-button" @click="filterByDb">Filtrar</button>
                     </div>
-                    <table class="table-base" v-if="data.length > 0">
+                    <table class="table-base" v-if="paginatedData.length > 0">
                         <thead>
                             <tr>
                                 <th>Consulta</th>
@@ -34,13 +34,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(query, index) in data" :key="index" @click="openModal(query.id)">
+                            <tr v-for="(query, index) in paginatedData" :key="index" @click="openModal(query.id)">
                                 <td>{{ query.nl_query }}</td>
                                 <td>{{ query.user_db_name}}</td>
                                 <td>{{ query.ai_model_name}}</td>
                             </tr>
                         </tbody>
                     </table>
+                    <div v-else class="no-data">No hay consultas registradas.</div>
+                    <div class="pagination" v-if="data.length > perPage">
+                        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">Anterior</button>
+                        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+                        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">Siguiente</button>
+                    </div>
                     <button class="purple-button" @click="newQuery">Iniciar nuevo chat</button>
                 </div>
             </div>
@@ -114,6 +120,8 @@ export default {
             },
             databases:[],
             selectedDb: '',
+            currentPage: 1,
+            perPage: 10,
         };
     },
     mounted() {
@@ -122,6 +130,16 @@ export default {
     },
     components: {
         ArrowLeftIcon
+    },
+    computed: {
+        totalPages() {
+            return Math.ceil(this.data.length / this.perPage);
+        },
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            const end = start + this.perPage;
+            return this.data.slice(start, end);
+        },
     },
     methods: {
         goBack() {
@@ -191,6 +209,7 @@ export default {
                 this.selectedValue = is_correct_query
                 console.log("original value:", this.originalValue)
                 console.log("selected value:", this.selectedValue)
+                console.log(query_data)
                 this.tableData.query_result = query_result_data.query_result
                 this.tableData.columns = query_result_data.columns
                 this.selectedQuery = query_data
@@ -243,6 +262,7 @@ export default {
                     }
                 )
                 this.data = response.data
+                this.currentPage = 1
             } catch (error) {
                 console.log("Error: ", error)
                 this.mensaje = `Error al obtener los datos ${error}`
@@ -518,5 +538,27 @@ export default {
 
 .query-value select:focus {
   border: 2px solid #391872;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+  gap: 10px;
+}
+
+.page-btn {
+  background-color: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
