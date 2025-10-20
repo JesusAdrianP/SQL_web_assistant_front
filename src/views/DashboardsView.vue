@@ -25,6 +25,10 @@
                         </select>
                         <button class="purple-button" @click="filterByDb">Filtrar</button>
                     </div>
+                    <h2>Porcentaje de Precisión</h2>
+                    <div class="container-cards">
+                        <ModelPrecisionCard v-for="(model, index) in models" :key="index" :model="model" />
+                    </div>
                     <div class="graphics">
                         <div class="dashboard">
                             <h2>Uso de Modelos en Consultas</h2>
@@ -48,6 +52,7 @@
 <script>
 import PieChart from '@/components/PieChart.vue'
 import BarChart from '@/components/BarChart.vue'
+import ModelPrecisionCard from '@/components/ModelPrecisionCard.vue'
 import { ArrowLeftIcon } from 'lucide-vue-next'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
@@ -65,16 +70,19 @@ export default {
             databases:[],
             selectedDb: '',
             error: null,
+            models: []
         };
     },
     mounted() {
         this.fetchData();
         this.fetchDatabases();
+        this.fetchModels();
     },
     components: {
         ArrowLeftIcon,
         PieChart,
-        BarChart
+        BarChart,
+        ModelPrecisionCard
     },
     methods: {
         goBack() {
@@ -119,7 +127,6 @@ export default {
                 this.modelLabels = response.data.performance_stats.map(item => item.model_name);
                 this.modelCorrect = response.data.performance_stats.map(item => item.correct_quantity);
                 this.modelIncorrect = response.data.performance_stats.map(item => item.incorrect_quantity);
-                console.log('Datos obtenidos:', this.models);
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
@@ -140,6 +147,24 @@ export default {
             } catch (error) {
                 console.log("Error: ", error)
                 this.mensaje = `Error al obtener los datos ${error}`
+            }
+        },
+        async fetchModels() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get("/ai_models/get_models",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                console.log('Datos obtenidos:', response.data);
+                this.models = response.data;
+                console.log('Modelos:', this.models);
+            } catch (error) {
+                console.error("Error al obtener el mensaje:", error);
+                this.mensaje = "Error al cargar el mensaje.";
             }
         }
     },
@@ -429,5 +454,24 @@ export default {
 
 .dashboard canvas{
     max-height: 300px;
+}
+
+.container-cards {
+    display: flex;
+    gap: 20px;
+    flex-direction: row;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.base-card {
+    flex: 1;
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 </style>

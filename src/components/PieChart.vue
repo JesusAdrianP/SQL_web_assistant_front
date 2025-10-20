@@ -25,7 +25,7 @@ export default {
           {
             label: 'Uso de modelos',
             data: this.data,
-            backgroundColor: ['#4CAF50', '#2196F3', '#FFC107', '#F44336']
+            backgroundColor: ['#4DB6FF', '#4ECDC4', '#FFE66D']
           }
         ]
       }
