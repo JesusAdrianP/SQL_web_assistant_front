@@ -16,7 +16,7 @@
             <div class="module-row">
                 <div class="module-block">
                     <h1 class="module-title">Bases de datos sincronizadas</h1>
-                    <table class="table-base" v-if="data.length > 0">
+                    <table class="table-base" v-if="paginatedData.length > 0">
                         <thead>
                             <tr>
                                 <th>Nombre</th>
@@ -24,12 +24,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(db, index) in data" :key="index">
+                            <tr v-for="(db, index) in paginatedData" :key="index">
                                 <td>{{ db.db_name }}</td>
                                 <td>{{ new Date(db.created_at).toLocaleString() }}</td>
                             </tr>
                         </tbody>
                     </table>
+                    <div v-else class="no-data">No hay bases de datos sincronizadas.</div>
+                    <div class="pagination" v-if="data.length > perPage">
+                        <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">Anterior</button>
+                        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+                        <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">Siguiente</button>
+                    </div>
                     <button class="purple-button" @click="syncDatabases">Sincronizar nueva Base de datos</button>
                 </div>
             </div>
@@ -51,6 +57,8 @@ export default {
     data() {
         return {
             data: [],
+            currentPage: 1,
+            perPage: 10,
         };
     },
     mounted() {
@@ -58,6 +66,16 @@ export default {
     },
     components: {
         ArrowLeftIcon
+    },
+    computed: {
+        totalPages() {
+            return Math.ceil(this.data.length / this.perPage);
+        },
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            const end = start + this.perPage;
+            return this.data.slice(start, end);
+        },
     },
     methods: {
         goBack() {
@@ -269,5 +287,27 @@ export default {
 
 .module-title{
     margin-top: 0px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+  gap: 10px;
+}
+
+.page-btn {
+  background-color: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
