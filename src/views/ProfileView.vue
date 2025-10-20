@@ -33,7 +33,7 @@
                                 <label for="password">Contraseña</label>
                                 <input type="password" id="password" v-model="form.password" required />
                             </div>
-                            <button class="purple-button save-btn" type="submit" :disabled="!hasChanges">Guardar cambios</button>
+                            <button class="purple-button save-btn" type="submit" :disabled="!hasChanges" @click="updateUserData">Guardar cambios</button>
                         </form>
                     </div>
                 </div>
@@ -79,7 +79,11 @@ export default {
     },
     methods:{
         goBack() {
-            this.$router.go(-1); 
+            this.$router.push({ name: 'HomeView' }); 
+        },
+        logoutApp() {
+            localStorage.removeItem('token');
+            this.$router.push({ name: 'InicioView' });
         },
         async fetchUserData() {
             try {
@@ -100,6 +104,36 @@ export default {
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
+            }
+        },
+        async updateUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                const updatedFields = {};
+                if (this.form.username !== this.originalUserData.username) {
+                    updatedFields.username = this.form.username;
+                }
+                if (this.form.email !== this.originalUserData.email) {
+                    updatedFields.email = this.form.email;
+                }
+                if (this.form.password && this.form.password.trim() !== "") {
+                    updatedFields.password = this.form.password;
+                }
+                const response = await axios.put("/users/update_user", updatedFields,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                );
+                if (updatedFields.username) this.originalUserData.username = this.form.username;
+                if (updatedFields.email) this.originalUserData.email = this.form.email;
+                this.form.password = "";
+                console.log("Datos actualizados:", response.data);
+                alert("Datos actualizados con éxito");
+            } catch (error) {
+                console.log("Error al actualizar datos:", error);
+                alert("Error al actualizar los datos");
             }
         }
     },
