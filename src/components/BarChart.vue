@@ -27,12 +27,12 @@ export default {
         datasets: [
           {
             label: 'Correctas',
-            backgroundColor: '#4caf50',
+            backgroundColor: '#4ECDC4',
             data: this.correct
           },
           {
             label: 'Incorrectas',
-            backgroundColor: '#f44336',
+            backgroundColor: '#FF6B6B',
             data: this.incorrect
           }
         ]
