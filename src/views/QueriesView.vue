@@ -17,6 +17,7 @@
                 <div class="module-block">
                     <h1 class="module-title">Consultas realizadas</h1>
                     <div>
+                        <input class="search-bar" v-model="searchQuery" placeholder="Buscar..." />
                         <select class="query-value" v-model="selectedDb" @change="handleDbChange">
                             <option disabled value="">Selecciona una base de datos</option>
                             <option v-for="db in databases" :key="db.id" :value="db">
@@ -104,6 +105,7 @@ export default {
     name: "QueriesView",
     data() {
         return {
+            searchQuery: '',
             data: [],
             isModalOpen: false,
             selectedQuery:null,
@@ -132,13 +134,16 @@ export default {
         ArrowLeftIcon
     },
     computed: {
+        filteredQueries() {
+            return this.data.filter( query => query.nl_query.toLowerCase().includes(this.searchQuery.toLocaleLowerCase()) );
+        },
         totalPages() {
             return Math.ceil(this.data.length / this.perPage);
         },
         paginatedData() {
             const start = (this.currentPage - 1) * this.perPage;
             const end = start + this.perPage;
-            return this.data.slice(start, end);
+            return this.filteredQueries.slice(start, end);
         },
     },
     methods: {
@@ -560,5 +565,28 @@ export default {
 .page-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.search-bar label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+}
+
+.search-bar {
+  width: 50%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  margin-right: 8px;
+}
+
+.search-bar:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 </style>
