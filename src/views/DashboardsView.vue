@@ -136,7 +136,7 @@ export default {
             try {
                 const token = localStorage.getItem('token')
                 const user_db_id = this.selectedDb.id
-                const response = await axios.get(`/queries/user_queries?user_db_id=${user_db_id}`,
+                const response = await axios.get(`/ai_models/calculate_model_performance?user_db_id=${user_db_id}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`
@@ -144,6 +144,10 @@ export default {
                     }
                 )
                 this.data = response.data
+                this.modelUsage = response.data.performance_stats.map(item => item.usage_percentage);
+                this.modelLabels = response.data.performance_stats.map(item => item.model_name);
+                this.modelCorrect = response.data.performance_stats.map(item => item.correct_quantity);
+                this.modelIncorrect = response.data.performance_stats.map(item => item.incorrect_quantity);
             } catch (error) {
                 console.log("Error: ", error)
                 this.mensaje = `Error al obtener los datos ${error}`
