@@ -148,7 +148,7 @@ export default {
     },
     methods: {
         goBack() {
-            this.$router.go(-1); 
+            this.$router.push({ name: 'HomeView' }); 
         },
         newQuery() {
             this.$router.push({ name: 'SelectModel' })
@@ -432,6 +432,11 @@ export default {
 
 .table-base tbody tr:not(:last-child) {
     border-bottom: 1px solid #cccccc82;
+}
+
+.table-base tbody tr:hover {
+    background-color: #f4f5f8;
+    cursor: pointer;
 }
 
 .back-button {
