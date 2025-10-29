@@ -24,7 +24,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(db, index) in paginatedData" :key="index">
+                            <tr v-for="(db, index) in paginatedData" :key="index" @click="openModal(db.id)">
                                 <td>{{ db.db_name }}</td>
                                 <td>{{ new Date(db.created_at).toLocaleString() }}</td>
                             </tr>
@@ -44,11 +44,55 @@
             <ArrowLeftIcon /> <span> Volver</span>
         </button>
       </div>
+      <!-- Modal -->
+        <div v-if="isModalOpen" class="overlay" @click.self="closeModal">
+            <div class="modal">
+                <h2 class="font-bold text-lg mb-2">Detalles de la base de datos</h2>
+                <div v-if="loading">Cargando...</div>
+                <div v-else-if="selectedDb">
+                    <div class="database-info">
+                        <form >
+                            <div class="form-group">
+                                <label for="db_name">Nombre de la base de datos:</label>
+                                <input type="text" id="db_name" v-model="form.db_name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="db_user">Usuario de la base de datos:</label>
+                                <input type="text" id="db_user" v-model="form.db_user" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="db_port">Puerto de la base de datos:</label>
+                                <input type="text" id="db_port" v-model="form.db_port" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="db_host">Host de la base de datos:</label>
+                                <input type="text" id="db_host" v-model="form.db_host" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="db_schema">Esquema base de datos:</label>
+                                <input type="text" id="db_schema" v-model="form.db_schema" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="db_password">Contraseña de la base de datos:</label>
+                                <input type="password" id="db_password" v-model="form.db_password" required />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-buttons"> 
+                    <button class="close-btn" @click="closeModal">Cerrar</button>
+                    <button class="update-button" v-if="onValueChange" @click="updateDbData(selectedDb.id)">
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
   </template>
 
 <script>
 import { ArrowLeftIcon } from 'lucide-vue-next'
+import isEqual from 'lodash/isEqual'
 const { url } = require('../../api_config.js')
 const axios = require('axios')
 axios.defaults.baseURL = url
@@ -59,6 +103,25 @@ export default {
             data: [],
             currentPage: 1,
             perPage: 10,
+            loading: false,
+            selectedDb: null,
+            isModalOpen: false,
+            form: {
+                db_name: '',
+                db_port: '',
+                db_user: '',
+                db_host: '',
+                db_schema: '',
+                db_password: ''
+            },
+            originalData: {
+                db_name: '',
+                db_port: '',
+                db_user: '',
+                db_host: '',
+                db_schema: '',
+                db_password: ''
+            }
         };
     },
     mounted() {
@@ -76,10 +139,13 @@ export default {
             const end = start + this.perPage;
             return this.data.slice(start, end);
         },
+        onValueChange() {
+            return !isEqual(this.form, this.originalData)
+        }
     },
     methods: {
         goBack() {
-            this.$router.go(-1); 
+            this.$router.push({ name: 'HomeView' }); 
         },
         syncDatabases() {
             this.$router.push({ name: 'DatabaseConnection' })
@@ -103,6 +169,74 @@ export default {
             } catch (error) {
                 console.error("Error al obtener el mensaje:", error);
                 this.mensaje = "Error al cargar el mensaje.";
+            }
+        },
+        async openModal(user_db_id) {
+            this.isModalOpen = true
+            this.loading = true
+            this.selectedQuery = null
+            try {
+                const token = localStorage.getItem('token')
+                const response = await axios.get(`/user_dbs/user_db/${user_db_id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+                const user_db_data = response.data
+                console.log(user_db_data)
+                this.selectedDb = user_db_data
+                console.log("selectedDb: ", this.selectedDb.id)
+                this.originalData.db_name = user_db_data.db_name
+                this.originalData.db_port = user_db_data.db_port
+                this.originalData.db_user = user_db_data.db_user
+                this.originalData.db_host = user_db_data.db_host
+                this.originalData.db_schema = user_db_data.db_schema
+                this.form = { ...this.originalData }
+            } catch (error) {
+                console.log("Error: ", error)
+                this.mensaje = `Error al obtener los datos ${error}`
+            } finally {
+                this.loading = false
+            }
+        },
+        closeModal() {
+            this.selectedDb = null
+            this.isModalOpen = false
+        },
+        getChangedFields() {
+            const changed = {}
+            
+            Object.keys(this.form).forEach(key => {
+                if (!isEqual(this.form[key], this.originalData[key])) {
+                    changed[key] = String(this.form[key])
+                }
+            })
+            return changed
+        },
+        async updateDbData(user_db_id) {
+            try {
+                const token = localStorage.getItem('token')
+                const valuesToUpdate = this.getChangedFields()
+                console.log("values to update: ", valuesToUpdate)
+                const response = await axios.put(`/user_dbs/update_db/${user_db_id}`, valuesToUpdate,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                )
+                console.log("Response: ", response)
+                alert("Datos actualizados con éxito")
+            } catch (error) {
+                console.log("Error al actualizar: ", error)
+                this.mensaje = `Error al actualizar ${error}`
+            } finally {
+                this.originalData = { ...this.form }
+                this.originalData.db_password = this.form.db_password = ''
+                this.showUpdateButton = false
             }
         },
     },
@@ -309,5 +443,90 @@ export default {
 .page-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.table-base tbody tr:hover {
+    background-color: #f4f5f8;
+    cursor: pointer;
+}
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-height: 85vh;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  align-items: center;
+  align-content: center;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.close-btn {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background: #5b4288;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.update-button {
+    margin-top: 15px;
+    padding: 10px 15px;
+    background: #5b4288;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: #0056b3;
+}
+
+.update-button:hover {
+    background-color: #0056b3;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #4a5568;
+}
+
+.database-info input {
+  width: 50%;
+  padding: 0.8rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+}
+
+.database-info input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.database-info .form-group {
+    margin-bottom: 15px;
 }
 </style>
